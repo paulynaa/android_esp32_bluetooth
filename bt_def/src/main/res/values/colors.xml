@@ -2,4 +2,5 @@
 <resources>
     <color name="red">#F44336</color>
     <color name="purple">#311A64</color>
+    <color name="background_pink">#D9BFBF</color>
 </resources>
