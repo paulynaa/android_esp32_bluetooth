@@ -30,7 +30,9 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+
         }
+        startActivity(Intent(this, BaseActivity::class.java))
     }
 }
 

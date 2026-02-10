@@ -2,6 +2,11 @@
 <resources>
 
     <style name="Theme.ESP32_valdymas" parent="android:Theme.Material.Light.NoActionBar" >
+        <!-- Base theme for the application and Compose activities -->
+    </style>
+
+    <style name="Theme.BaseActivityTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Theme for BaseActivity -->
         <item name="android:windowFullscreen">true</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
