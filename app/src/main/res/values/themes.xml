@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ESP32_valdymas" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.ESP32_valdymas" parent="android:Theme.Material.Light.NoActionBar" >
+        <item name="android:windowFullscreen">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>
