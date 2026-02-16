@@ -2,4 +2,6 @@
     <string name="paired_devices">Paired devices</string>
     <string name="device_search">Search for devices…</string>
     <string name="empty">No devices</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
