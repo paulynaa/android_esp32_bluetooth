@@ -5,11 +5,14 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +28,7 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
     private lateinit var itemAdapter: ItemAdapter
     private var bAdapter: BluetoothAdapter? = null
     private lateinit var binding: FragmentListBinding
-
+    private lateinit var discoveryAdapter: ItemAdapter
     private lateinit var btLauncher: ActivityResultLauncher<Intent>
     private lateinit var pLauncher: ActivityResultLauncher<Array<String>>
     private var preferences: SharedPreferences? = null
@@ -45,6 +48,15 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
         binding.imBluetoothOn.setOnClickListener {
             btLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
         }
+        binding.imBluetoothSearch.setOnClickListener {
+           try {
+               bAdapter?.startDiscovery()
+           }
+           catch (e: SecurityException) {
+
+           }
+        }
+        intentFilters()
         checkPermissions()
         initRcViews()
         registerBtLauncher()
@@ -54,7 +66,10 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
 
     private fun initRcViews() = with(binding) {
         rcViewPaired.layoutManager = LinearLayoutManager(requireContext())
+        rcViewSearch.layoutManager = LinearLayoutManager(requireContext())
         itemAdapter = ItemAdapter(this@DeviceListFragment)
+        discoveryAdapter = ItemAdapter(this@DeviceListFragment)
+        rcViewSearch.adapter = discoveryAdapter
         rcViewPaired.adapter = itemAdapter
     }
 
@@ -64,8 +79,7 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
         deviceList.forEach {
             list.add(
                 ListItem(
-                    it.name,
-                    it.address,
+                    it,
                     preferences?.getString(BluetoothConstants.MAC, "") == it.address))
         }
         binding.tvEmptyPaired.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
@@ -129,8 +143,39 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
         editor?.apply()
     }
 
-    override fun onClick(device: ListItem) {
-        saveMac(device.mac)
+    override fun onClick(item: ListItem) {
+        saveMac(item.device.address)
 
+    }
+    private val bReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == BluetoothDevice.ACTION_FOUND) {
+                val device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                val list = mutableSetOf<ListItem>()
+                list.addAll(discoveryAdapter.currentList)
+                if (device != null)  list.add(ListItem(device, false))
+                discoveryAdapter.submitList(list.toList())
+                try {Log.d("MyLog", "Device: ${device?.name}")}
+                catch (e: SecurityException) {
+
+                }
+
+            } else if (intent?.action == BluetoothDevice.ACTION_BOND_STATE_CHANGED) {
+
+            } else if (intent?.action == BluetoothAdapter.ACTION_DISCOVERY_FINISHED) {
+
+            }
+
+        }
+
+    }
+
+    private fun intentFilters(){
+        val f1 = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        val f2 = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
+        val f3 = IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
+        activity?.registerReceiver(bReceiver, f1)
+        activity?.registerReceiver(bReceiver, f2)
+        activity?.registerReceiver(bReceiver, f3)
     }
 }

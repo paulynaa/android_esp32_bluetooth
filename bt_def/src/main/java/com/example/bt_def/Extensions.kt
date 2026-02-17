@@ -15,6 +15,7 @@ fun Fragment.changeButtonColor(button: ImageButton, color: Int) {
     button.setImageDrawable(drawable)
 }
 
+
 fun Fragment.checkBtPermissions(): Boolean {
     return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         ContextCompat.checkSelfPermission(
