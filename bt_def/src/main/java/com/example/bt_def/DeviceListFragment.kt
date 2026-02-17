@@ -1,5 +1,6 @@
 package com.example.bt_def
 
+import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -7,6 +8,7 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -25,6 +27,7 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
     private lateinit var binding: FragmentListBinding
 
     private lateinit var btLauncher: ActivityResultLauncher<Intent>
+    private lateinit var pLauncher: ActivityResultLauncher<Array<String>>
     private var preferences: SharedPreferences? = null
 
     override fun onCreateView(
@@ -42,6 +45,7 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
         binding.imBluetoothOn.setOnClickListener {
             btLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
         }
+        checkPermissions()
         initRcViews()
         registerBtLauncher()
         initBtAdapter()
@@ -89,6 +93,33 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
             } else {
                 Snackbar.make(binding.root, "Bluetooth is turned off", Snackbar.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private fun checkPermissions() {
+        if (!checkBtPermissions()) {
+            registerPermissionListener()
+            launchBtPermissions()
+        }
+    }
+    private fun launchBtPermissions(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            pLauncher.launch(arrayOf(
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+
+            )
+        } else {
+            pLauncher.launch(arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION))
+        }
+    }
+
+    private fun registerPermissionListener() {
+        pLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) {
+
         }
     }
 
