@@ -25,6 +25,7 @@ class BaseActivity : AppCompatActivity() {
         val list  = ArrayList<ListItem>()
         for (i in 0 until 5) {
             list.add(ListItem(
+
                 "Device $i",
                 "00:1A:2B:3C:4D:5E")
             )

@@ -3,18 +3,41 @@ package com.example.bt_def
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bt_def.databinding.ListItemBinding
 
-class ItemAdapter: ListAdapter<ListItem, ItemAdapter.MyHolder>(Comparator()) {
+class ItemAdapter(private val listener: Listener): ListAdapter<ListItem, ItemAdapter.MyHolder>(Comparator()) {
+    private var oldCheckBox: CheckBox? = null
+    class MyHolder(view: View, private val adapter: ItemAdapter, private val listener: Listener) : RecyclerView.ViewHolder(view){
+        private val b = ListItemBinding.bind(view)
+        private var device: ListItem? = null
+        init {
+            b.checkBox.setOnClickListener {
+                device?.let { it1 -> listener.onClick(it1) }
+                adapter.selectCheckBox(it as CheckBox)
+            }
+            itemView.setOnClickListener {
+                device?.let { it1 -> listener.onClick(it1) }
+                adapter.selectCheckBox(b.checkBox)
+            }
+        }
+        fun bind(item: ListItem) = with(b) {
+            device= item
+            name.text = item.name
+            mac.text = item.mac
+            if (item.isChecked) adapter.selectCheckBox(checkBox)
+        }
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): MyHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false)
-        return MyHolder(view)
+        return MyHolder(view, this, listener)
     }
 
     override fun onBindViewHolder(
@@ -24,14 +47,6 @@ class ItemAdapter: ListAdapter<ListItem, ItemAdapter.MyHolder>(Comparator()) {
         holder.bind(getItem(position))
     }
 
-    class MyHolder(view: View) : RecyclerView.ViewHolder(view){
-        private val b = ListItemBinding.bind(view)
-        fun bind(item: ListItem) = with(b) {
-            name.text = item.name
-            mac.text = item.mac
-
-        }
-    }
 
     class Comparator : DiffUtil.ItemCallback<ListItem>() {
         override fun areItemsTheSame(
@@ -49,4 +64,13 @@ class ItemAdapter: ListAdapter<ListItem, ItemAdapter.MyHolder>(Comparator()) {
         }
     }
 
+    fun selectCheckBox(checkBox: CheckBox) {
+        oldCheckBox?.isChecked = false
+        oldCheckBox = checkBox
+        oldCheckBox?.isChecked = true
+    }
+
+    interface Listener{
+        fun onClick(device: ListItem)
+    }
 }
