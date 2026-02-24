@@ -50,7 +50,11 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
         }
         binding.imBluetoothSearch.setOnClickListener {
            try {
-               bAdapter?.startDiscovery()
+               if(bAdapter?.isEnabled == true) {
+                   bAdapter?.startDiscovery()
+                   binding.imBluetoothSearch.visibility = View.GONE
+                   binding.pbSearch.visibility = View.VISIBLE
+               }
            }
            catch (e: SecurityException) {
 
@@ -165,6 +169,8 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
                 getPairedDevices()
 
             } else if (intent?.action == BluetoothAdapter.ACTION_DISCOVERY_FINISHED) {
+                binding.imBluetoothSearch.visibility = View.VISIBLE
+                binding.pbSearch.visibility = View.GONE
 
             }
 
