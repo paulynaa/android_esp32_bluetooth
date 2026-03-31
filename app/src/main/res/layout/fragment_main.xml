@@ -34,9 +34,19 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="31dp"
+        android:backgroundTint="@color/green"
         android:text="Connect"
         app:layout_constraintBottom_toTopOf="@+id/bList"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/bSend"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="send a"
+        app:layout_constraintBottom_toTopOf="@+id/bConnect"
+        app:layout_constraintEnd_toEndOf="@+id/bConnect"
+        app:layout_constraintStart_toStartOf="@+id/bConnect" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
