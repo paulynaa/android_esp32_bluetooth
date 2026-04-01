@@ -56,7 +56,7 @@ class ConnectThread(private val device: BluetoothDevice, val listener: Bluetooth
 
     fun closeConnection() {
         try {
-            mSocket?.connect()
+            mSocket?.close()
         } catch (e: IOException) {
 
         }

@@ -24,7 +24,9 @@ fun Fragment.checkBtPermissions(): Boolean {
                 && ContextCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-
+                && ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
     } else {
         ContextCompat.checkSelfPermission(
             requireContext(),
