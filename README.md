@@ -31,7 +31,7 @@
 ```
 
 
-# Android ESP32 Bluetooth Controller (Classic SPP)
+# Android ESP32 Bluetooth Controller
 
 This repository contains an Android application (Kotlin) that connects to an ESP32 over **Classic Bluetooth (RFCOMM / SPP)**, lets the user select/pair a device, connect/disconnect, and send simple messages (currently the app sends `"A"`). The Bluetooth functionality is split into a reusable module `bt_def` that provides both UI (device list) and the underlying connection thread/controller.
 
