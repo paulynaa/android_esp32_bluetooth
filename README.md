@@ -509,3 +509,377 @@ Also ensure required permissions are granted (manifest + runtime).
 If UI doesn’t show:
 
 activity_base.xml container and fragment transaction logic in BaseActivity/DeviceListFragment.
+
+
+# Android ESP32 Bluetooth Controller (Classic SPP)
+
+This repository contains an Android application (Kotlin) that connects to an ESP32 over **Classic Bluetooth (RFCOMM / SPP)**, lets the user select/pair a device, connect/disconnect, and send simple messages (currently the app sends `"A"`). The Bluetooth functionality is split into a reusable module `bt_def` that provides both UI (device list) and the underlying connection thread/controller.
+
+---
+
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Architecture](#architecture)
+  - [Modules](#modules)
+  - [Runtime Flow](#runtime-flow)
+  - [Bluetooth Transport](#bluetooth-transport)
+- [File-by-File Breakdown](#file-by-file-breakdown)
+  - [Root](#root)
+  - [`app` module](#app-module)
+  - [`bt_def` module](#bt_def-module)
+- [Key Functions / Logic Explained](#key-functions--logic-explained)
+  - [Device selection & pairing flow](#device-selection--pairing-flow)
+  - [Saving and using the selected MAC address](#saving-and-using-the-selected-mac-address)
+  - [Connecting and message I/O](#connecting-and-message-io)
+- [Setup Instructions](#setup-instructions)
+  - [Prerequisites](#prerequisites)
+  - [Build & Run](#build--run)
+  - [Permissions Notes (Android 12+)](#permissions-notes-android-12)
+- [Usage Examples](#usage-examples)
+  - [Pick a device and connect](#pick-a-device-and-connect)
+  - [Send a command to ESP32](#send-a-command-to-esp32)
+- [Known Issues / Improvements](#known-issues--improvements)
+
+---
+
+## Project Overview
+
+**Goal:** Control or communicate with an ESP32 device from Android using Bluetooth Classic.
+
+**What it currently does:**
+- Shows a device list UI (`DeviceListFragment` from `bt_def`)
+  - Shows **paired devices**
+  - Discovers nearby devices and allows **bonding/pairing**
+  - Lets you choose a paired device (checkbox selection)
+  - Stores the chosen device **MAC address** in SharedPreferences
+- Provides a connection API (`BluetoothController`) to:
+  - connect to the device using the stored MAC
+  - send a message (writes to the socket OutputStream)
+  - read incoming messages in a loop (reads from InputStream and notifies a listener)
+
+---
+
+## Architecture
+
+### Modules
+
+This is a multi-module Gradle project:
+
+- **`app/`** — the main Android application UI and entry points.
+- **`bt_def/`** — a reusable “Bluetooth definitions + device picker + connector” module:
+  - Device list UI and pairing
+  - SharedPreferences keys/constants
+  - Bluetooth connection controller + background thread that manages socket I/O
+
+### Runtime Flow
+
+High-level runtime behavior (as implemented today):
+
+1. **Launcher Activity:** `StartActivity` (in `app`)
+2. The app then navigates into `MainActivity` (in `app`)
+3. `MainActivity` immediately launches `com.example.bt_def.BaseActivity` (in `bt_def`) and finishes itself.
+4. `BaseActivity` hosts `DeviceListFragment` which:
+   - requests permissions (if needed)
+   - allows enabling Bluetooth
+   - shows paired devices
+   - can discover devices and pair them
+   - saves the selected MAC address into SharedPreferences
+
+Separately (in `MainFragment`), the app has a UI to:
+- connect using the saved MAC
+- send a message `"A"`
+
+> Note: In the current code you provided, `MainActivity` always launches `BaseActivity`, so the `MainFragment` flow may not be reachable unless there is additional navigation/activities not shown here. The Bluetooth “connect/send” logic is implemented and ready to use from `MainFragment`, but the app’s current entry sequence prioritizes the device list activity.
+
+### Bluetooth Transport
+
+The connection uses this UUID:
+
+- `00001101-0000-1000-8000-00805F9B34FB`
+
+That UUID corresponds to the common Bluetooth Classic **SPP (Serial Port Profile)** UUID used by many ESP32 Classic Bluetooth serial implementations.
+
+The actual transport used is:
+- `BluetoothDevice.createRfcommSocketToServiceRecord(UUID)`
+- `BluetoothSocket.connect()`
+- read from `BluetoothSocket.inputStream`
+- write to `BluetoothSocket.outputStream`
+
+---
+
+## File-by-file Breakdown
+
+### Root
+
+- `build.gradle.kts` — top-level Gradle configuration.
+- `settings.gradle.kts` — includes modules (`app`, `bt_def`).
+- `gradle.properties` — Gradle/Android properties.
+- `gradlew`, `gradlew.bat`, `gradle/` — Gradle wrapper.
+
+---
+
+## `app` module
+
+#### `app/src/main/AndroidManifest.xml`
+- Declares the app’s launcher activity `StartActivity`.
+- Also registers `com.example.bt_def.BaseActivity` with a theme override.
+
+#### `app/src/main/java/com/example/esp32_valdymas/StartActivity.kt`
+- The **launcher** activity.
+- Currently only inflates `ContentStartBinding` and sets the content view.
+
+#### `app/src/main/java/com/example/esp32_valdymas/MainActivity.kt`
+- A thin activity that immediately starts `BaseActivity` from the `bt_def` module:
+  - `startActivity(Intent(this, BaseActivity::class.java))`
+  - `finish()`
+
+#### `app/src/main/java/com/example/esp32_valdymas/MainFragment.kt`
+Implements `BluetoothController.Listener` and is designed to:
+- read saved MAC from SharedPreferences (`BluetoothConstants.PREFERENCES`, `BluetoothConstants.MAC`)
+- create `BluetoothController(btAdapter)`
+- connect via `bluetoothController.connect(mac, this)`
+- send `"A"` via `bluetoothController.sendMessage("A")`
+- update UI based on callbacks in `onReceive(message: String)`
+
+---
+
+## `bt_def` module
+
+#### `bt_def/src/main/AndroidManifest.xml`
+Declares the Bluetooth-related permissions (merged into the final app manifest during build), including:
+- `BLUETOOTH_CONNECT`, `BLUETOOTH_SCAN`
+- legacy `BLUETOOTH`, `BLUETOOTH_ADMIN`
+- `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION`
+
+Also registers:
+- `BaseActivity`
+
+#### `bt_def/src/main/java/com/example/bt_def/BaseActivity.kt`
+- Hosts `DeviceListFragment` in `activity_base` layout:
+  - Replaces `R.id.placeHolder` with `DeviceListFragment()`
+
+#### `bt_def/src/main/java/com/example/bt_def/BluetoothConstants.kt`
+- SharedPreferences constants:
+  - `PREFERENCES = "main_preferences"`
+  - `MAC = "mac"`
+
+#### `bt_def/src/main/java/com/example/bt_def/DeviceListFragment.kt`
+- The core device list / permission / discovery UI.
+- Responsibilities:
+  - Initialize Bluetooth adapter via `BluetoothManager`
+  - Request permissions (using Activity Result API)
+  - Show paired devices
+  - Start discovery (scan)
+  - Register BroadcastReceiver for discovery events
+  - Allow bonding/pairing for discovered devices
+  - Save selected device MAC to SharedPreferences on click
+
+#### `bt_def/src/main/java/com/example/bt_def/Extensions.kt`
+- Utility extension functions used by fragments:
+  - `changeButtonColor(button, color)`
+  - `checkBtPermissions()` (Android 12+ checks `BLUETOOTH_CONNECT` + location; older checks location)
+
+#### `bt_def/src/main/java/com/example/bt_def/ItemAdapter.kt`
+- RecyclerView `ListAdapter<ListItem, ...>`
+- Used for:
+  - **paired devices list** (checkbox selection visible)
+  - **discovered devices list** (checkbox hidden; tapping triggers `createBond()`)
+
+#### `bt_def/src/main/java/com/example/bt_def/ListItem.kt`
+- Data model: `(device: BluetoothDevice, isChecked: Boolean)`
+
+#### `bt_def/src/main/java/com/example/bt_def/bluetooth/BluetoothController.kt`
+- The API layer used by the app:
+  - `connect(mac, listener)`
+  - `sendMessage(message)`
+  - `closeConnection()`
+- Owns a single `ConnectThread`.
+
+#### `bt_def/src/main/java/com/example/bt_def/bluetooth/ConnectThread.kt`
+- Background thread that:
+  - creates an RFCOMM socket
+  - calls `connect()`
+  - notifies `listener.onReceive(BLUETOOTH_CONNECTED)`
+  - continuously reads from `inputStream` and forwards strings to the listener
+  - provides `sendMessage()` to write to output stream
+
+---
+
+## Key Functions / Logic Explained
+
+### Device selection & pairing flow
+
+#### `DeviceListFragment.onViewCreated(...)`
+This wires up the UI and system components:
+- Reads preferences:
+  - `preferences = activity?.getSharedPreferences(PREFERENCES, MODE_PRIVATE)`
+- Bluetooth enable button:
+  - calls `btLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))`
+- Search button:
+  - `bAdapter?.startDiscovery()`
+  - hides search icon, shows progress bar
+- Registers broadcast receivers (`intentFilters()`)
+- Checks permissions (`checkPermissions()`)
+- Initializes RecyclerViews (`initRcViews()`)
+- Registers the enable-Bluetooth activity result (`registerBtLauncher()`)
+- Initializes Bluetooth adapter (`initBtAdapter()`)
+- Updates UI based on current Bluetooth state (`bluetoothState()`)
+
+#### BroadcastReceiver: `bReceiver`
+Handles discovery/bonding lifecycle:
+- `ACTION_FOUND`:
+  - gets `BluetoothDevice` from `EXTRA_DEVICE`
+  - adds it to the discovery adapter list (deduplicated via `mutableSetOf`)
+  - updates “empty search” label visibility
+- `ACTION_BOND_STATE_CHANGED`:
+  - refreshes paired list via `getPairedDevices()`
+- `ACTION_DISCOVERY_FINISHED`:
+  - restores search icon, hides progress bar
+
+#### Pairing behavior (in `ItemAdapter`)
+- For the discovery list (`adapterType == true`):
+  - tapping a device row calls `device.createBond()`
+- For paired list (`adapterType == false`):
+  - tapping checks the checkbox and calls the listener `onClick(item)`
+
+### Saving and using the selected MAC address
+
+#### `DeviceListFragment.saveMac(mac: String)`
+Stores the chosen address:
+- `preferences.edit().putString(MAC, mac).apply()`
+
+#### `DeviceListFragment.getPairedDevices()`
+Builds the paired list and marks the selected item:
+- reads `bondedDevices`
+- for each device, sets `isChecked = (savedMac == device.address)`
+- submits list to `itemAdapter`
+
+#### `MainFragment` usage of saved MAC
+- Reads:
+  - `mac = pref.getString(MAC, "")`
+- Uses it on connect button:
+  - `bluetoothController.connect(mac ?: "", this)`
+
+### Connecting and message I/O
+
+#### `BluetoothController.connect(mac, listener)`
+- Validates: Bluetooth enabled + non-empty MAC
+- Looks up remote device:
+  - `adapter.getRemoteDevice(mac)`
+- Starts `ConnectThread(device, listener)`
+
+#### `ConnectThread.run()`
+- Attempts:
+  - `mSocket?.connect()`
+- On success:
+  - `listener.onReceive(BLUETOOTH_CONNECTED)`
+  - calls `readMessage()` (infinite loop)
+- On failure:
+  - `listener.onReceive(BLUETOOTH_NO_CONNECTED)`
+
+#### `ConnectThread.readMessage()`
+- Infinite loop:
+  - reads up to 256 bytes from `inputStream`
+  - converts to String and calls `listener.onReceive(message)`
+- On IOException:
+  - notifies not connected and breaks loop
+
+#### `ConnectThread.sendMessage(message)`
+- `outputStream.write(message.toByteArray())`
+
+#### `MainFragment.onReceive(message)`
+Runs on UI thread and updates UI:
+- If message is `BLUETOOTH_CONNECTED`:
+  - set button tint red and text `"Disconnect"`
+- If message is `BLUETOOTH_NO_CONNECTED`:
+  - set button tint green and text `"Connect"`
+- Otherwise:
+  - show received message in `tvStatus`
+
+---
+
+## Setup Instructions
+
+### Prerequisites
+- Android Studio (latest stable)
+- Android SDK installed
+- Physical Android device with Bluetooth (recommended)
+- ESP32 firmware that exposes Classic Bluetooth SPP (RFCOMM) service compatible with SPP UUID
+
+### Build & Run
+
+Clone:
+```bash
+git clone https://github.com/paulynaa/android_esp32_bluetooth.git
+cd android_esp32_bluetooth
+```
+
+Build debug APK:
+```bash
+./gradlew :app:assembleDebug
+```
+
+Install on a connected device:
+```bash
+./gradlew :app:installDebug
+```
+
+### Permissions Notes (Android 12+)
+- Your module requests `BLUETOOTH_CONNECT` and uses it in permission checks.
+- Discovery typically also requires `BLUETOOTH_SCAN` on Android 12+; your manifest includes it, but `launchBtPermissions()` currently requests:
+  - `BLUETOOTH_CONNECT`
+  - `ACCESS_FINE_LOCATION`
+  - (it does **not** request `BLUETOOTH_SCAN`)
+
+If discovery does not work on Android 12+, you may need to request `BLUETOOTH_SCAN` at runtime as well.
+
+---
+
+## Usage Examples
+
+### Pick a device and connect
+
+1. Launch the app.
+2. In the device list screen:
+   - Tap Bluetooth power icon to enable Bluetooth (if off).
+   - Tap search icon to discover devices.
+   - Tap a discovered device to pair (bond).
+   - In paired devices list, tap the device to select it (checkbox).
+   - This saves the MAC address to SharedPreferences.
+3. In your connect UI (MainFragment), tap **Connect** to connect to the saved MAC.
+
+### Send a command to ESP32
+Once connected:
+- Tap **Send** (currently hard-coded):
+  - sends `"A"` over RFCOMM to ESP32:
+    ```kotlin
+    bluetoothController.sendMessage("A")
+    ```
+
+If ESP32 responds, the app displays the received message in `tvStatus`.
+
+---
+
+## Known Issues / Improvements
+
+1. **`closeConnection()` bug in `ConnectThread`:**
+   - Currently calls `mSocket?.connect()` instead of `mSocket?.close()`.
+   - It should close the socket to disconnect.
+
+2. **Runtime permission coverage:**
+   - On Android 12+, discovery often requires requesting `BLUETOOTH_SCAN` runtime permission.
+
+3. **Lifecycle cleanup:**
+   - `DeviceListFragment` registers a receiver via `activity?.registerReceiver(...)` but does not unregister it in `onDestroyView()` / `onDestroy()`.
+   - This can lead to leaks/crashes.
+
+4. **Error handling & UI:**
+   - Many `catch (SecurityException)` blocks are empty; adding user-facing messages helps debugging.
+
+5. **Navigation consistency:**
+   - `MainActivity` always launches `BaseActivity` and finishes; ensure this matches your intended UX if you want `MainFragment` to be used.
+
+---
+
+If you want, I can also generate an improved README section with a **sequence diagram** (device selection → save MAC → connect thread → read/write callbacks) and propose code fixes for the disconnect and permissions issues.
