@@ -303,3 +303,209 @@ Once those source contents are included, this README can be expanded with:
 - exact classes (e.g., `BluetoothGattCallback`, `BluetoothSocket`, managers, repositories/viewmodels)
 - diagrams of data flow (UI → Bluetooth layer → ESP32 and back)
 - exact code examples that match your implementation
+
+
+
+Copilot said: The `bt_def` module in your repo is
+The bt_def module in your repo is a reusable Bluetooth “helper/library” Android module that provides:
+
+a small UI flow for listing/choosing devices, and
+the core connection logic (thread that opens a Bluetooth socket), plus
+supporting model/adapter/utilities/constants.
+Below is a detailed breakdown of what’s inside bt_def, how the pieces fit together, and how it works inside your Android app.
+
+1) What bt_def contains (inventory)
+Gradle / Android plumbing
+bt_def/build.gradle.kts — config for this module (it is its own Android module).
+bt_def/src/main/AndroidManifest.xml — module manifest (declares permissions/features used by the module, and/or merges into the app manifest).
+Proguard files: consumer-rules.pro, proguard-rules.pro
+Kotlin source (library code)
+Package: bt_def/src/main/java/com/example/bt_def/
+
+BaseActivity.kt
+BluetoothConstants.kt
+DeviceListFragment.kt
+Extensions.kt
+ItemAdapter.kt
+ListItem.kt
+bluetooth/
+BluetoothController.kt
+ConnectThread.kt
+UI resources used by the module
+bt_def/src/main/res/layout/
+
+activity_base.xml
+fragment_list.xml
+list_item.xml
+2) Architecture: how the module is structured
+bt_def is essentially split into two layers:
+
+A) UI / “device picker” layer
+DeviceListFragment + ItemAdapter + ListItem + layouts
+
+This layer is responsible for:
+
+presenting a list UI (RecyclerView-style) based on fragment_list.xml
+rendering each row using list_item.xml
+providing a mechanism for the user to choose a Bluetooth device (typically a paired device or discovered device list)
+passing the user’s selection onward (to your app’s screen) so the app can connect
+B) Bluetooth connection layer
+BluetoothController + ConnectThread + BluetoothConstants
+
+This layer is responsible for:
+
+holding Bluetooth constants needed for connection (e.g., UUID/name keys/request codes)
+initiating and managing the connection attempt
+doing the blocking socket connect work off the main thread (ConnectThread)
+From file names and typical patterns, this looks like Classic Bluetooth SPP-style socket connection (the presence of ConnectThread strongly suggests you call BluetoothSocket.connect() in a background thread). If it were BLE, you’d usually see BluetoothGatt, callbacks, characteristic UUIDs, etc.
+
+3) Detailed file-by-file logic (what each file does in the system)
+BluetoothConstants.kt
+Role: shared constants for the module.
+
+Typical contents (based on common Android Bluetooth patterns):
+
+a fixed UUID for the service to connect to (for SPP often 00001101-0000-1000-8000-00805F9B34FB, or your custom one)
+keys for bundling selected device address/name between Fragment/Activity (e.g., EXTRA_DEVICE_ADDRESS)
+request codes for startActivityForResult / permission flows (if used)
+How it affects the app:
+
+Ensures your app and the module agree on “what key name” carries the MAC address, and what UUID to use when opening a socket.
+ConnectThread.kt
+Role: does the actual Bluetooth socket connection on a background thread.
+
+Core logic (what it “actually does”):
+
+Receives a target BluetoothDevice (and likely a UUID).
+Creates a BluetoothSocket (usually via device.createRfcommSocketToServiceRecord(uuid)).
+Calls bluetoothAdapter.cancelDiscovery() before connecting (important because discovery slows connection).
+Calls socket.connect() (blocking call).
+On success:
+exposes the connected socket back to the rest of the module/app (via callback, handler, listener, or controller state).
+On failure:
+closes the socket and returns an error (again via callback/handler/state).
+How it affects your app:
+
+This is the piece that turns a chosen device into an actual connection attempt without freezing the UI thread.
+Your MainFragment / main UI will only be able to send data after ConnectThread reports “connected” and you have streams.
+What you usually do next (in the app layer):
+
+Get socket.outputStream to write bytes/strings to ESP32.
+Get socket.inputStream to read responses (often another “ConnectedThread” exists for continuous reads; in your module list I don’t see it, so either:
+reads are done elsewhere (in your app module), or
+the module currently only connects and doesn’t implement continuous read loop yet.
+BluetoothController.kt
+Role: higher-level coordinator around Bluetooth actions.
+
+What it typically does in practice:
+
+Holds a reference to BluetoothAdapter
+Provides functions like:
+“is Bluetooth supported / enabled?”
+“get paired devices”
+“connect(device)” → creates and starts ConnectThread
+possibly “stop/cancel connection”
+Acts as the boundary between UI (DeviceListFragment) and the thread (ConnectThread)
+How it affects your app:
+
+Your app can call controller methods (directly or indirectly through the fragment) instead of manually handling low-level socket creation everywhere.
+It centralizes connection behavior so MainFragment or StartActivity can just trigger “connect”.
+DeviceListFragment.kt
+Role: device list screen that the user interacts with.
+
+What it typically does:
+
+Initializes Bluetooth adapter/controller.
+Collects candidate devices:
+often paired devices (bluetoothAdapter.bondedDevices)
+possibly discovered devices via BroadcastReceiver (if implemented)
+Builds a list of ListItem items.
+Uses ItemAdapter to show items in a list.
+Handles click:
+when user taps a device row, it returns or forwards the selected device address/name.
+may start connection immediately or simply return “selection” to the hosting Activity/Fragment.
+How it works in your app:
+
+Your app would either:
+embed this fragment into one of your Activities, or
+navigate to it, let the user pick a device, then navigate back with the result (device MAC), then connect in MainFragment.
+It uses:
+
+fragment_list.xml as its UI
+ItemAdapter to render device rows
+probably helper methods from Extensions.kt (for toasts, view visibility, etc.)
+ItemAdapter.kt
+Role: RecyclerView adapter for showing a list of items (Bluetooth devices) in the fragment.
+
+What it does:
+
+Takes a List<ListItem>
+Binds each item to list_item.xml
+Handles item click callback
+How it affects your app:
+
+Determines how devices appear in the list and what data is passed on tap.
+ListItem.kt
+Role: model for a row in the list.
+
+What it likely contains:
+
+title (device name or “Unknown device”)
+subtitle (MAC address)
+maybe BluetoothDevice reference or address string
+Extensions.kt
+Role: utility extension functions used across the module.
+
+Typical examples:
+
+Context.toast("...")
+View.visible() / gone()
+Fragment.requireBluetoothAdapter() helpers
+string formatting helpers
+How it affects your app:
+
+Reduces boilerplate and makes UI/controller code in bt_def cleaner.
+BaseActivity.kt + activity_base.xml
+Role: a shared Activity base and its layout.
+
+Why it exists:
+
+The module likely provides a “container” Activity used to host DeviceListFragment (or any other bt_def UI).
+activity_base.xml is probably just a FrameLayout container where fragments are swapped in.
+How it affects your app:
+
+Your app can start this base activity (or subclass it) to reuse the module’s device-selection UI.
+4) How bt_def “actually works” with your app module
+From your app module structure, the main UI is in:
+
+app/src/main/java/com/example/esp32_valdymas/MainFragment.kt
+MainActivity.kt
+StartActivity.kt
+The typical integration patterns are:
+
+Pattern A: App launches device picker (bt_def), receives selected device, then connects
+In StartActivity or MainFragment, you open DeviceListFragment (either directly or via an Activity that hosts it).
+User selects a device.
+You receive the device address/name.
+You pass it to the Bluetooth layer (BluetoothController → ConnectThread) to connect.
+Once connected, your main screen sends commands to ESP32.
+Pattern B: bt_def both selects and connects, app only uses the socket/connected state
+User selects device inside bt_def UI.
+bt_def starts ConnectThread and connects.
+bt_def returns “connected socket/session” (via shared singleton, callback, or controller reference).
+Your main UI uses that connection to send data.
+Which of these you’re using depends on how DeviceListFragment is wired to your MainFragment (navigation/result passing).
+
+5) Practical “mental model” for debugging / extending bt_def
+If connection fails:
+
+ConnectThread is where to look first (socket creation, UUID mismatch, connect exceptions).
+BluetoothConstants is where UUID/address keys would be defined.
+DeviceListFragment is where you ensure you’re selecting the correct device (ESP32 name/MAC) and not trying to connect while discovering.
+If device list is empty:
+
+DeviceListFragment logic for retrieving paired/discovered devices is the key.
+Also ensure required permissions are granted (manifest + runtime).
+If UI doesn’t show:
+
+activity_base.xml container and fragment transaction logic in BaseActivity/DeviceListFragment.
