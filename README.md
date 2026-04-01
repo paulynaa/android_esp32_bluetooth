@@ -1,36 +1,3 @@
-# android_esp32_bluetooth
-
-
-
-## Module & Folder Structure
-
-```text
-.
-├── app/                            # Android application module
-│   ├── build.gradle.kts            # App module Gradle config
-│   ├── proguard-rules.pro          # ProGuard/R8 rules
-│   └── src/
-│       ├── main/
-│       │   ├── AndroidManifest.xml
-│       │   ├── java/
-│       │   │   └── com/example/esp32_valdymas/
-│       │   │       ├── MainActivity.kt
-│       │   │       ├── MainFragment.kt
-│       │   │       ├── StartActivity.kt
-│       │   │       └── ui/theme/   # Compose theme package (common in Compose projects)
-│       │   └── res/                # Android resources (layouts/drawables/values/etc.)
-│       ├── test/                   # Unit tests
-│       └── androidTest/            # Instrumentation tests
-├── bt_def/                         # Likely Bluetooth definitions / protocol constants
-├── gradle/                         # Gradle wrapper support files
-├── build.gradle.kts                # Top-level Gradle config
-├── settings.gradle.kts             # Module includes and project settings
-├── gradle.properties               # Gradle/Android properties
-├── gradlew / gradlew.bat           # Gradle wrapper scripts
-└── README.md                       # (Existing minimal README)
-```
-
-
 # Android ESP32 Bluetooth Controller
 
 This repository contains an Android application (Kotlin) that connects to an ESP32 over **Classic Bluetooth (RFCOMM / SPP)**, lets the user select/pair a device, connect/disconnect, and send simple messages (currently the app sends `"A"`). The Bluetooth functionality is split into a reusable module `bt_def` that provides both UI (device list) and the underlying connection thread/controller.
