@@ -5,9 +5,9 @@ import android.bluetooth.BluetoothSocket
 import android.util.Log
 import java.io.IOException
 import java.util.UUID
-
+// susikuria bluetooth socket, prisijungia, jei prisijunge, pradeda klausytis, leidzia siusti zinutes, leidzia uzdaryti rysi.
 class ConnectThread(private val device: BluetoothDevice, val listener: BluetoothController.Listener) : Thread() {
-    private val uuid = "00001101-0000-1000-8000-00805F9B34FB"
+    private val uuid = "00001101-0000-1000-8000-00805F9B34FB" // klasikinis Bluetooth SPP
     private var mSocket: BluetoothSocket? = null
     init {
         try {
@@ -32,11 +32,11 @@ class ConnectThread(private val device: BluetoothDevice, val listener: Bluetooth
 
     private fun readMessage(){
         val buffer = ByteArray(256)
-         while (true) {
+         while (true) { // klausosi visa laika
              try {
-                val length = mSocket?.inputStream?.read(buffer)
-                 val message = String(buffer, 0, length ?: 0)
-                 listener.onReceive(message)
+                val length = mSocket?.inputStream?.read(buffer) // laukia, perskaito, grazina ilgi
+                 val message = String(buffer, 0, length ?: 0) // is baitu padaro teksta
+                 listener.onReceive(message) // teksta siuncia i ui
              } catch (e: IOException) {
                  listener.onReceive(BluetoothController.BLUETOOTH_NO_CONNECTED)
                  break

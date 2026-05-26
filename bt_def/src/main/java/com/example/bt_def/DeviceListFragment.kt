@@ -19,19 +19,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.bt_def.databinding.FragmentListBinding
 import com.google.android.material.snackbar.Snackbar
 
-
+//
 class DeviceListFragment : Fragment(), ItemAdapter.Listener {
-    private lateinit var itemAdapter: ItemAdapter
-    private var bAdapter: BluetoothAdapter? = null
-    private lateinit var binding: FragmentListBinding
-    private lateinit var discoveryAdapter: ItemAdapter
-    private lateinit var btLauncher: ActivityResultLauncher<Intent>
-    private lateinit var pLauncher: ActivityResultLauncher<Array<String>>
-    private var preferences: SharedPreferences? = null
+    private lateinit var itemAdapter: ItemAdapter // paired
+    private var bAdapter: BluetoothAdapter? = null // valdo bluetooth
+    private lateinit var binding: FragmentListBinding // pasiekia ui xml
+    private lateinit var discoveryAdapter: ItemAdapter // paieskai
+    private lateinit var btLauncher: ActivityResultLauncher<Intent> // paleidzia sistemini langa
+    private lateinit var pLauncher: ActivityResultLauncher<Array<String>> // praso permissions
+    private var preferences: SharedPreferences? = null // issaugo pasirinkta mac adresa
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,9 +47,9 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
         super.onViewCreated(view, savedInstanceState)
         preferences = activity?.getSharedPreferences(BluetoothConstants.PREFERENCES, Context.MODE_PRIVATE)
         binding.imBluetoothOn.setOnClickListener {
-            btLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+            btLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)) // jeigu bluetooth isjungtas, praso ijungti
         }
-        binding.imBluetoothSearch.setOnClickListener {
+        binding.imBluetoothSearch.setOnClickListener { // paieskos mygtuko
            try {
                if(bAdapter?.isEnabled == true) {
                    bAdapter?.startDiscovery()
@@ -68,7 +69,7 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
         bluetoothState()
     }
 
-    private fun initRcViews() = with(binding) {
+    private fun initRcViews() = with(binding) { // sudaro du sarasus
         rcViewPaired.layoutManager = LinearLayoutManager(requireContext())
         rcViewSearch.layoutManager = LinearLayoutManager(requireContext())
         itemAdapter = ItemAdapter(this@DeviceListFragment, adapterType = false)
@@ -95,7 +96,7 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
     }
     private fun bluetoothState() {
         if (bAdapter?.isEnabled == true){
-            changeButtonColor(binding.imBluetoothOn, R.color.purple)
+            changeButtonColor(binding.imBluetoothOn, ContextCompat.getColor(requireContext(),R.color.white))
             getPairedDevices()
 
         }
@@ -104,7 +105,7 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
         btLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                changeButtonColor(binding.imBluetoothOn, R.color.purple)
+                changeButtonColor(binding.imBluetoothOn, ContextCompat.getColor(requireContext(),R.color.white))
                 getPairedDevices()
                 Snackbar.make(binding.root, "Bluetooth is turned on", Snackbar.LENGTH_LONG).show()
 
@@ -152,24 +153,24 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
         saveMac(item.device.address)
 
     }
-    private val bReceiver = object : BroadcastReceiver() {
+    private val bReceiver = object : BroadcastReceiver() { // laukia kol kazka ivyks su bluetooth
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == BluetoothDevice.ACTION_FOUND) {
+            if (intent?.action == BluetoothDevice.ACTION_FOUND) { // randa nauja irengini, idedu i sarasa, atnaujina ui
                 val device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
                 val list = mutableSetOf<ListItem>()
                 list.addAll(discoveryAdapter.currentList)
                 if (device != null)  list.add(ListItem(device, false))
                 discoveryAdapter.submitList(list.toList())
-                binding.tvEmptySearch.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                binding.tvEmptySearch.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE // pagal tuscia sarasa pasikeicia ui
                 try {Log.d("MyLog", "Device: ${device?.name}")}
                 catch (e: SecurityException) {
 
                 }
 
-            } else if (intent?.action == BluetoothDevice.ACTION_BOND_STATE_CHANGED) {
+            } else if (intent?.action == BluetoothDevice.ACTION_BOND_STATE_CHANGED) { // cia poruotu irenginiu sarasas keiciasi
                 getPairedDevices()
 
-            } else if (intent?.action == BluetoothAdapter.ACTION_DISCOVERY_FINISHED) {
+            } else if (intent?.action == BluetoothAdapter.ACTION_DISCOVERY_FINISHED) { // kai baigesi paieska, keiciasi ikonele
                 binding.imBluetoothSearch.visibility = View.VISIBLE
                 binding.pbSearch.visibility = View.GONE
 
@@ -179,7 +180,7 @@ class DeviceListFragment : Fragment(), ItemAdapter.Listener {
 
     }
 
-    private fun intentFilters(){
+    private fun intentFilters(){ // kai atsitiks f1, f2 ar f3, kviesk breceiver
         val f1 = IntentFilter(BluetoothDevice.ACTION_FOUND)
         val f2 = IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         val f3 = IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)

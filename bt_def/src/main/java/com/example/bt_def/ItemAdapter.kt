@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bt_def.databinding.ListItemBinding
-
+// itemadapter rodo irenginius sarase, kai paired leidzia pazymeti checkbox, kai vyksta search leidzia suporuoti, apie pasirinkima pranesa fragemntui per listener
 class ItemAdapter(private val listener: Listener, val adapterType: Boolean):
     ListAdapter<ListItem, ItemAdapter.MyHolder>(Comparator()) {
     private var oldCheckBox: CheckBox? = null
