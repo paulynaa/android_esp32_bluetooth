@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D0D0D">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Sensor readouts card -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SENSOR DATA"
+            android:textColor="#FF6B00"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="8dp" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1A1A"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Temperature row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TEMP"
+                        android:textColor="#666666"
+                        android:textSize="12sp"
+                        android:fontFamily="monospace"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:id="@+id/tvTemp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textColor="#E8E8E8"
+                        android:textSize="20sp"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" °C"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:fontFamily="monospace"
+                        android:gravity="bottom"/>
+                </LinearLayout>
+
+                <!-- Humidity row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="HUMID"
+                        android:textColor="#666666"
+                        android:textSize="12sp"
+                        android:fontFamily="monospace"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:id="@+id/tvHumid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textColor="#E8E8E8"
+                        android:textSize="20sp"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" %"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:fontFamily="monospace"/>
+                </LinearLayout>
+
+                <!-- Generic value row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="VALUE"
+                        android:textColor="#666666"
+                        android:textSize="12sp"
+                        android:fontFamily="monospace"
+                        android:layout_weight="1"/>
+                    <TextView
+                        android:id="@+id/tvValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textColor="#E8E8E8"
+                        android:textSize="20sp"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Request sensors row -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="REQUEST"
+            android:textColor="#FF6B00"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/bReqTemp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="TEMP"
+                android:fontFamily="monospace"
+                android:backgroundTint="#1A2A1A"
+                android:textColor="#4CAF50"
+                android:strokeColor="#4CAF50" />
+
+            <Button
+                android:id="@+id/bReqHumid"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="UPTIME"
+                android:fontFamily="monospace"
+                android:backgroundTint="#1A2A1A"
+                android:textColor="#4CAF50" />
+
+            <Button
+                android:id="@+id/bReqAll"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="MEM"
+                android:fontFamily="monospace"
+                android:backgroundTint="#1A2A1A"
+                android:textColor="#4CAF50" />
+        </LinearLayout>
+
+        <!-- LED Control -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LED CONTROL"
+            android:textColor="#FF6B00"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="8dp" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1A1A"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="LED 1"
+                        android:textColor="#AAAAAA"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"/>
+                    <Button
+                        android:id="@+id/bLed1On"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="ON"
+                        android:textSize="11sp"
+                        android:fontFamily="monospace"
+                        android:backgroundTint="#1A3A1A"
+                        android:textColor="#4CAF50" />
+                    <Button
+                        android:id="@+id/bLed1Off"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:text="OFF"
+                        android:textSize="11sp"
+                        android:fontFamily="monospace"
+                        android:backgroundTint="#3A1A1A"
+                        android:textColor="#F44336" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="LED 2"
+                        android:textColor="#AAAAAA"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"/>
+                    <Button
+                        android:id="@+id/bLed2On"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="ON"
+                        android:textSize="11sp"
+                        android:fontFamily="monospace"
+                        android:backgroundTint="#1A3A1A"
+                        android:textColor="#4CAF50" />
+                    <Button
+                        android:id="@+id/bLed2Off"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:text="OFF"
+                        android:textSize="11sp"
+                        android:fontFamily="monospace"
+                        android:backgroundTint="#3A1A1A"
+                        android:textColor="#F44336" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- PWM Slider -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PWM BRIGHTNESS"
+            android:textColor="#FF6B00"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="8dp" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1A1A"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <SeekBar
+                        android:id="@+id/seekPwm"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="255"
+                        android:progress="0"
+                        android:progressTint="#FF6B00"
+                        android:thumbTint="#FF6B00"
+                        android:layout_marginEnd="12dp" />
+                    <TextView
+                        android:id="@+id/tvPwmValue"
+                        android:layout_width="40dp"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="#E8E8E8"
+                        android:textSize="14sp"
+                        android:fontFamily="monospace"
+                        android:gravity="end" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/bSendPwm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="SEND PWM"
+                    android:fontFamily="monospace"
+                    android:backgroundTint="#2A1A00"
+                    android:textColor="#FF6B00" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Last status -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LAST RESPONSE"
+            android:textColor="#FF6B00"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.15"
+            android:layout_marginBottom="8dp" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="#1A1A1A"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="0dp">
+            <TextView
+                android:id="@+id/tvLastResponse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="—"
+                android:textColor="#666666"
+                android:textSize="13sp"
+                android:fontFamily="monospace" />
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</ScrollView>
