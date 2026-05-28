@@ -23,41 +23,38 @@ class MainFragment : Fragment(), BluetoothController.Listener {
     private lateinit var btAdapter: BluetoothAdapter
     private lateinit var bluetoothController: BluetoothController
     private var isConnected = false
+    private var pulseAnimator: ObjectAnimator? = null
 
-    private lateinit var terminalFragment: TerminalFragment
-    private lateinit var dashboardFragment: DashboardFragment
+    lateinit var terminalFragment: TerminalFragment
+    lateinit var dashboardFragment: DashboardFragment
+    lateinit var gameFragment: GameFragment
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         initBtAdapter()
         setupViewPager()
 
         val pref = activity?.getSharedPreferences(BluetoothConstants.PREFERENCES, Context.MODE_PRIVATE)
-        val mac = pref?.getString(BluetoothConstants.MAC, "")
+        val mac  = pref?.getString(BluetoothConstants.MAC, "")
         bluetoothController = BluetoothController(btAdapter)
 
         binding.bList.setOnClickListener {
             findNavController().navigate(R.id.action_mainFragment_to_deviceListFragment)
         }
-
         binding.bConnect.setOnClickListener {
             if (isConnected) {
                 bluetoothController.closeConnection()
                 setDisconnected()
             } else {
                 if (mac.isNullOrEmpty()) {
-                    terminalFragment.appendLog("No device selected. Tap BT to pick a device.", TerminalFragment.LogType.ERROR)
+                    terminalFragment.appendLog("No device selected. Tap BT to choose one.", TerminalFragment.LogType.ERROR)
                 } else {
-                    terminalFragment.appendLog("Connecting to $mac...", TerminalFragment.LogType.SYSTEM)
+                    terminalFragment.appendLog("Connecting to $mac…", TerminalFragment.LogType.SYSTEM)
                     bluetoothController.connect(mac, this)
                 }
             }
@@ -65,48 +62,46 @@ class MainFragment : Fragment(), BluetoothController.Listener {
     }
 
     private fun setupViewPager() {
-        terminalFragment = TerminalFragment()
+        terminalFragment  = TerminalFragment()
         dashboardFragment = DashboardFragment()
+        gameFragment      = GameFragment()
 
-        val sendCommand: (String) -> Unit = { cmd ->
-            if (isConnected) {
-                bluetoothController.sendMessage(cmd)
-                // log it if it came from dashboard (terminal logs its own)
-            } else {
-                terminalFragment.appendLog("Not connected.", TerminalFragment.LogType.ERROR)
-            }
+        val send: (String) -> Unit = { cmd ->
+            if (isConnected) bluetoothController.sendMessage(cmd)
+            else terminalFragment.appendLog("Not connected.", TerminalFragment.LogType.ERROR)
         }
-
-        terminalFragment.onSendCommand = sendCommand
-        dashboardFragment.onSendCommand = sendCommand
+        terminalFragment.onSendCommand  = send
+        dashboardFragment.onSendCommand = send
 
         val adapter = object : FragmentStateAdapter(this) {
-            override fun getItemCount() = 2
-            override fun createFragment(position: Int): Fragment =
-                if (position == 0) terminalFragment else dashboardFragment
+            override fun getItemCount() = 3
+            override fun createFragment(pos: Int) = when (pos) {
+                0 -> terminalFragment
+                1 -> dashboardFragment
+                else -> gameFragment
+            }
         }
-
         binding.viewPager.adapter = adapter
+        binding.viewPager.isUserInputEnabled = true
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, pos ->
-            tab.text = if (pos == 0) "TERMINAL" else "DASHBOARD"
+            tab.text = when (pos) { 0 -> "TERMINAL"; 1 -> "DASHBOARD"; else -> "GAME" }
         }.attach()
     }
 
     private fun initBtAdapter() {
-        val bManager = activity?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        btAdapter = bManager.adapter
+        val bm = activity?.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        btAdapter = bm.adapter
     }
 
     private fun setConnected() {
         isConnected = true
         activity?.runOnUiThread {
             binding.bConnect.text = "DISCONNECT"
-            binding.bConnect.backgroundTintList =
-                android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#6B0000"))
+            binding.bConnect.backgroundTintList = tint("#C2185B")
             binding.tvConnectionStatus.text = "CONNECTED"
-            binding.tvConnectionStatus.setTextColor(android.graphics.Color.parseColor("#4CAF50"))
+            binding.tvConnectionStatus.setTextColor(color("#4CAF50"))
             binding.viewStatusDot.setBackgroundResource(R.drawable.status_dot_connected)
-            pulseStatusDot()
+            startPulse()
         }
     }
 
@@ -114,60 +109,61 @@ class MainFragment : Fragment(), BluetoothController.Listener {
         isConnected = false
         activity?.runOnUiThread {
             binding.bConnect.text = "CONNECT"
-            binding.bConnect.backgroundTintList =
-                android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#1A6B1A"))
+            binding.bConnect.backgroundTintList = tint("#AD1457")
             binding.tvConnectionStatus.text = "DISCONNECTED"
-            binding.tvConnectionStatus.setTextColor(android.graphics.Color.parseColor("#666666"))
+            binding.tvConnectionStatus.setTextColor(color("#9E9E9E"))
             binding.viewStatusDot.setBackgroundResource(R.drawable.status_dot)
+            stopPulse()
         }
     }
 
-    private fun pulseStatusDot() {
-        val anim = ObjectAnimator.ofFloat(binding.viewStatusDot, "alpha", 1f, 0.2f, 1f)
-        anim.duration = 1500
-        anim.repeatCount = ObjectAnimator.INFINITE
-        anim.start()
+    private fun startPulse() {
+        pulseAnimator?.cancel()
+        pulseAnimator = ObjectAnimator.ofFloat(binding.viewStatusDot, "alpha", 1f, 0.2f, 1f).apply {
+            duration = 1500; repeatCount = ObjectAnimator.INFINITE; start()
+        }
     }
+    private fun stopPulse() { pulseAnimator?.cancel(); binding.viewStatusDot.alpha = 1f }
 
-    private fun parseAndDispatch(message: String) {
-        val trimmed = message.trim()
-        when {
-            trimmed.startsWith("TEMP:") -> {
-                val value = trimmed.removePrefix("TEMP:")
-                dashboardFragment.updateSensorData("TEMP", value)
-                terminalFragment.appendLog(trimmed, TerminalFragment.LogType.OK)
-            }
-            trimmed.startsWith("HUMID:") -> {
-                val value = trimmed.removePrefix("HUMID:")
-                dashboardFragment.updateSensorData("HUMID", value)
-                terminalFragment.appendLog(trimmed, TerminalFragment.LogType.OK)
-            }
-            trimmed.startsWith("VALUE:") -> {
-                val value = trimmed.removePrefix("VALUE:")
-                dashboardFragment.updateSensorData("VALUE", value)
-                terminalFragment.appendLog(trimmed, TerminalFragment.LogType.OK)
-            }
-            // NEW: potentiometer live value
-            trimmed.startsWith("POT:") -> {
-                val value = trimmed.removePrefix("POT:")
-                dashboardFragment.updateSensorData("POT", value)
-                // Don't log every pot update to terminal — it would spam it
-            }
-            // NEW: physical button pressed on ESP32
-            trimmed == "BTN:PRESSED" -> {
-                dashboardFragment.showResponse("Button pressed!", false)
-                terminalFragment.appendLog("BTN:PRESSED — physical button triggered", TerminalFragment.LogType.OK)
-            }
-            trimmed == "OK" -> {
-                dashboardFragment.showResponse("OK", false)
-                terminalFragment.appendLog("OK", TerminalFragment.LogType.OK)
-            }
-            trimmed.startsWith("ERR:") -> {
-                dashboardFragment.showResponse(trimmed, true)
-                terminalFragment.appendLog(trimmed, TerminalFragment.LogType.ERROR)
-            }
-            trimmed.isNotEmpty() -> {
-                terminalFragment.appendLog(trimmed, TerminalFragment.LogType.RECEIVED)
+    private fun tint(hex: String) =
+        android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(hex))
+    private fun color(hex: String) = android.graphics.Color.parseColor(hex)
+
+    private fun parseAndDispatch(raw: String) {
+        raw.split("\n").forEach { line ->
+            val msg = line.trim()
+            if (msg.isEmpty()) return@forEach
+            when {
+                msg.startsWith("CHIP_TEMP:") -> {
+                    val v = msg.removePrefix("CHIP_TEMP:")
+                    dashboardFragment.onChipTemp(v)
+                    terminalFragment.appendLog(msg, TerminalFragment.LogType.OK)
+                }
+                msg.startsWith("LM35_TEMP:") -> {
+                    val v = msg.removePrefix("LM35_TEMP:")
+                    dashboardFragment.onLm35Temp(v)
+                    terminalFragment.appendLog(msg, TerminalFragment.LogType.OK)
+                }
+                msg.startsWith("UPTIME:") -> {
+                    dashboardFragment.onUptime(msg.removePrefix("UPTIME:"))
+                }
+                msg.startsWith("MEM:") -> {
+                    dashboardFragment.onMem(msg.removePrefix("MEM:"))
+                    terminalFragment.appendLog(msg, TerminalFragment.LogType.OK)
+                }
+                msg == "BTN:PRESSED" -> {
+                    dashboardFragment.onButtonPressed()
+                    terminalFragment.appendLog("Physical button pressed", TerminalFragment.LogType.OK)
+                }
+                msg == "OK" -> {
+                    dashboardFragment.onOk()
+                    terminalFragment.appendLog("OK", TerminalFragment.LogType.OK)
+                }
+                msg.startsWith("ERR:") -> {
+                    dashboardFragment.onError(msg)
+                    terminalFragment.appendLog(msg, TerminalFragment.LogType.ERROR)
+                }
+                else -> terminalFragment.appendLog(msg, TerminalFragment.LogType.RECEIVED)
             }
         }
     }
@@ -188,6 +184,7 @@ class MainFragment : Fragment(), BluetoothController.Listener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        pulseAnimator?.cancel()
         _binding = null
     }
 }
