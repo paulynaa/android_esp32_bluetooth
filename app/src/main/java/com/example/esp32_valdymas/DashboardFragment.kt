@@ -14,7 +14,6 @@ class DashboardFragment : Fragment() {
     private val b get() = _b!!
     var onSendCommand: ((String) -> Unit)? = null
 
-    // blink state
     private var blinkOn = false
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
@@ -25,11 +24,9 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupLed()
-        setupTemperature()
-        setupUptime()
-        setupMemory()
         setupRgb()
         setupBuzzer()
+        setupMemory()
     }
 
     // ── LED ──────────────────────────────────────
@@ -70,22 +67,62 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    // ── Temperature ──────────────────────────────
-    private fun setupTemperature() {
-        b.bReqChipTemp.setOnClickListener { onSendCommand?.invoke("REQ:TEMP_CHIP\n") }
-        b.bReqLm35.setOnClickListener    { onSendCommand?.invoke("REQ:TEMP_LM35\n") }
+    // ── RGB
+    private fun setupRgb() {
+        b.bRgbRed.setOnClickListener {
+            onSendCommand?.invoke("RGB:RED\n")
+            highlightRgb(b.bRgbRed)
+        }
+        b.bRgbGreen.setOnClickListener {
+            onSendCommand?.invoke("RGB:GREEN\n")
+            highlightRgb(b.bRgbGreen)
+        }
+        b.bRgbBlue.setOnClickListener {
+            onSendCommand?.invoke("RGB:BLUE\n")
+            highlightRgb(b.bRgbBlue)
+        }
+        b.bRgbOff.setOnClickListener {
+            onSendCommand?.invoke("RGB:OFF\n")
+            highlightRgb(null)
+        }
+    }
+
+    private fun highlightRgb(active: android.widget.Button?) {
+        val buttons = listOf(b.bRgbRed, b.bRgbGreen, b.bRgbBlue, b.bRgbOff)
+        val colors  = mapOf(
+            b.bRgbRed   to Pair("#FFEBEE", "#C62828"),
+            b.bRgbGreen to Pair("#E8F5E9", "#388E3C"),
+            b.bRgbBlue  to Pair("#E3F2FD", "#1565C0"),
+            b.bRgbOff   to Pair("#EFEBE9", "#4E342E")
+        )
+        buttons.forEach { btn ->
+            val (bg, fg) = colors[btn]!!
+            if (btn == active) {
+                btn.backgroundTintList = tint(fg)
+                btn.setTextColor(android.graphics.Color.WHITE)
+            } else {
+                btn.backgroundTintList = tint(bg)
+                btn.setTextColor(android.graphics.Color.parseColor(fg))
+            }
+        }
+    }
+
+    // ── Buzzer ───────────────────────────────────
+    private fun setupBuzzer() {
+        b.bBeep.setOnClickListener  { onSendCommand?.invoke("BUZZ:1\n") }
+        b.bAlarm.setOnClickListener { onSendCommand?.invoke("BUZZ:ALARM\n") }
+        b.bMute.setOnClickListener  { onSendCommand?.invoke("BUZZ:STOP\n") }
+    }
+
+    // ── Memory ───────────────────────────────────
+    private fun setupMemory() {
+        b.bReqMem.setOnClickListener { onSendCommand?.invoke("REQ:MEM\n") }
     }
 
     fun onChipTemp(v: String) = activity?.runOnUiThread { b.tvChipTemp.text = "$v°C" }
     fun onLm35Temp(v: String) = activity?.runOnUiThread { b.tvLm35Temp.text = "$v°C" }
 
-    // ── Uptime ───────────────────────────────────
-    private fun setupUptime() {
-        // auto-updated from telemetry push
-    }
-
     fun onUptime(raw: String) {
-        // format: "0d,0h,5m,32s"
         activity?.runOnUiThread {
             val parts = raw.split(",")
             if (parts.size == 4) {
@@ -97,13 +134,7 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    // ── Memory ───────────────────────────────────
-    private fun setupMemory() {
-        b.bReqMem.setOnClickListener { onSendCommand?.invoke("REQ:MEM\n") }
-    }
-
     fun onMem(raw: String) {
-        // format: "free,used,total"
         activity?.runOnUiThread {
             val p = raw.split(",")
             if (p.size == 3) {
@@ -119,36 +150,9 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    // ── RGB ──────────────────────────────────────
-    private fun setupRgb() {
-        val listener = object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(sb: SeekBar?, p: Int, user: Boolean) {
-                val r = b.seekR.progress; val g = b.seekG.progress; val bv = b.seekB.progress
-                b.tvRgbVal.text = "R:$r  G:$g  B:$bv"
-                b.viewRgbPreview.setBackgroundColor(android.graphics.Color.rgb(r, g, bv))
-            }
-            override fun onStartTrackingTouch(sb: SeekBar?) {}
-            override fun onStopTrackingTouch(sb: SeekBar?) {
-                val r = b.seekR.progress; val g = b.seekG.progress; val bv = b.seekB.progress
-                onSendCommand?.invoke("RGB:$r,$g,$bv\n")
-            }
-        }
-        b.seekR.setOnSeekBarChangeListener(listener)
-        b.seekG.setOnSeekBarChangeListener(listener)
-        b.seekB.setOnSeekBarChangeListener(listener)
-    }
-
-    // ── Buzzer ───────────────────────────────────
-    private fun setupBuzzer() {
-        b.bBeep.setOnClickListener  { onSendCommand?.invoke("BUZZ:1\n") }
-        b.bAlarm.setOnClickListener { onSendCommand?.invoke("BUZZ:ALARM\n") }
-        b.bMute.setOnClickListener  { onSendCommand?.invoke("BUZZ:STOP\n") }
-    }
-
-    // ── Status helpers ────────────────────────────
-    fun onOk()                   = activity?.runOnUiThread { setStatus("OK", "#4CAF50") }
-    fun onError(msg: String)     = activity?.runOnUiThread { setStatus(msg, "#F44336") }
-    fun onButtonPressed()        = activity?.runOnUiThread { setStatus("Physical button pressed!", "#FF9800") }
+    fun onOk()               = activity?.runOnUiThread { setStatus("OK", "#4CAF50") }
+    fun onError(msg: String) = activity?.runOnUiThread { setStatus(msg, "#F44336") }
+    fun onButtonPressed()    = activity?.runOnUiThread { setStatus("Physical button pressed!", "#FF9800") }
 
     private fun setStatus(msg: String, hex: String) {
         b.tvLastResponse.text = msg

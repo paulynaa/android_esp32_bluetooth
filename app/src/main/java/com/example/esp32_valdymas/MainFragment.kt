@@ -76,8 +76,8 @@ class MainFragment : Fragment(), BluetoothController.Listener {
         val adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount() = 3
             override fun createFragment(pos: Int) = when (pos) {
-                0 -> terminalFragment
-                1 -> dashboardFragment
+                0    -> terminalFragment
+                1    -> dashboardFragment
                 else -> gameFragment
             }
         }
@@ -102,6 +102,7 @@ class MainFragment : Fragment(), BluetoothController.Listener {
             binding.tvConnectionStatus.setTextColor(color("#4CAF50"))
             binding.viewStatusDot.setBackgroundResource(R.drawable.status_dot_connected)
             startPulse()
+            gameFragment.startSession()
         }
     }
 
@@ -114,6 +115,7 @@ class MainFragment : Fragment(), BluetoothController.Listener {
             binding.tvConnectionStatus.setTextColor(color("#9E9E9E"))
             binding.viewStatusDot.setBackgroundResource(R.drawable.status_dot)
             stopPulse()
+            gameFragment.endSession()
         }
     }
 
@@ -135,14 +137,10 @@ class MainFragment : Fragment(), BluetoothController.Listener {
             if (msg.isEmpty()) return@forEach
             when {
                 msg.startsWith("CHIP_TEMP:") -> {
-                    val v = msg.removePrefix("CHIP_TEMP:")
-                    dashboardFragment.onChipTemp(v)
-                    terminalFragment.appendLog(msg, TerminalFragment.LogType.OK)
+                    dashboardFragment.onChipTemp(msg.removePrefix("CHIP_TEMP:"))
                 }
                 msg.startsWith("LM35_TEMP:") -> {
-                    val v = msg.removePrefix("LM35_TEMP:")
-                    dashboardFragment.onLm35Temp(v)
-                    terminalFragment.appendLog(msg, TerminalFragment.LogType.OK)
+                    dashboardFragment.onLm35Temp(msg.removePrefix("LM35_TEMP:"))
                 }
                 msg.startsWith("UPTIME:") -> {
                     dashboardFragment.onUptime(msg.removePrefix("UPTIME:"))
@@ -153,6 +151,7 @@ class MainFragment : Fragment(), BluetoothController.Listener {
                 }
                 msg == "BTN:PRESSED" -> {
                     dashboardFragment.onButtonPressed()
+                    gameFragment.onPhysicalButtonPress()
                     terminalFragment.appendLog("Physical button pressed", TerminalFragment.LogType.OK)
                 }
                 msg == "OK" -> {

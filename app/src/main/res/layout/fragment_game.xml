@@ -5,13 +5,42 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:background="#FFF0F4">
 
-    <FrameLayout android:id="@+id/gameContainer"
+    <!-- Main score display area -->
+    <LinearLayout
+        android:id="@+id/gameContainer"
         android:layout_width="0dp" android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/scoreBar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="BUTTON COUNTER" android:textColor="#880E4F"
+            android:textSize="13sp" android:fontFamily="monospace"
+            android:letterSpacing="0.1" android:layout_marginBottom="16dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Press the physical button" android:textColor="#F48FB1"
+            android:textSize="12sp" android:fontFamily="monospace"
+            android:layout_marginBottom="32dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="PRESSES" android:textColor="#BDBDBD"
+            android:textSize="11sp" android:fontFamily="monospace"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Big score number -->
+        <TextView android:id="@+id/tvScore"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="SCORE: 0" android:textColor="#C2185B"
+            android:textSize="48sp" android:fontFamily="monospace"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+    <!-- Bottom bar -->
     <LinearLayout android:id="@+id/scoreBar"
         android:layout_width="0dp" android:layout_height="48dp"
         android:background="#FCE4EC" android:orientation="horizontal"
@@ -19,33 +48,26 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-        <TextView android:id="@+id/tvScore"
-            android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:text="SCORE: 0"
-            android:textColor="#C2185B" android:textSize="14sp" android:fontFamily="monospace" android:textStyle="bold"/>
+
         <TextView android:id="@+id/tvBest"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="BEST: 0" android:textColor="#AD1457"
-            android:textSize="13sp" android:fontFamily="monospace"/>
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="DISCONNECTED"
+            android:textColor="#AD1457" android:textSize="12sp" android:fontFamily="monospace"/>
+
+        <Button android:id="@+id/bRestart"
+            android:layout_width="wrap_content" android:layout_height="32dp"
+            android:text="RESET" android:fontFamily="monospace" android:textSize="10sp"
+            android:backgroundTint="#C2185B" android:textColor="#FFFFFF"/>
     </LinearLayout>
 
-    <!-- Game over overlay -->
+    <!-- Hidden — kept so binding compiles without changes to other code -->
     <LinearLayout android:id="@+id/layoutGameOver"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:orientation="vertical" android:gravity="center"
-        android:background="#CCFCE4EC" android:padding="32dp"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/scoreBar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="GAME OVER" android:textColor="#880E4F"
-            android:textSize="28sp" android:fontFamily="monospace" android:textStyle="bold"
-            android:layout_marginBottom="16dp"/>
-        <Button android:id="@+id/bRestart" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="RESTART"
-            android:fontFamily="monospace" android:backgroundTint="#C2185B" android:textColor="#FFFFFF"/>
-    </LinearLayout>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
