@@ -44,8 +44,11 @@ class TerminalFragment : Fragment() {
             } else false
         }
 
-        appendLog("Terminal ready. Type a command and press send.", LogType.SYSTEM)
-        appendLog("Commands: LED1:1, LED1:0, LED2:1, LED2:0, PWM:128, REQ:TEMP, REQ:HUMID, REQ:ALL", LogType.SYSTEM)
+        appendLog("Terminal ready.", LogType.SYSTEM)
+        appendLog("LED: LED1:1 LED1:0 LED1:BLINK", LogType.SYSTEM)
+        appendLog("RGB: RGB:255,0,128  SERVO:90", LogType.SYSTEM)
+        appendLog("BUZZ: BUZZ:1  BUZZ:ALARM", LogType.SYSTEM)
+        appendLog("REQ: REQ:TEMP REQ:UPTIME REQ:MEM REQ:ALL", LogType.SYSTEM)
     }
 
     private fun sendInput() {

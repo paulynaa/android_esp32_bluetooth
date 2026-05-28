@@ -12,358 +12,215 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Sensor readouts card -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="SENSOR DATA"
-            android:textColor="#FF6B00"
-            android:textSize="11sp"
-            android:fontFamily="monospace"
-            android:letterSpacing="0.15"
-            android:layout_marginBottom="8dp" />
+        <!-- SENSOR DATA -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="SENSOR DATA" android:textColor="#FF6B00" android:textSize="11sp"
+            android:fontFamily="monospace" android:layout_marginBottom="8dp"/>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#1A1A1A"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="0dp">
+        <androidx.cardview.widget.CardView android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1A1A" app:cardCornerRadius="4dp" app:cardElevation="0dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="16dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Temperature row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="TEMP"
-                        android:textColor="#666666"
-                        android:textSize="12sp"
-                        android:fontFamily="monospace"
-                        android:layout_weight="1"/>
-                    <TextView
-                        android:id="@+id/tvTemp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--"
-                        android:textColor="#E8E8E8"
-                        android:textSize="20sp"
-                        android:fontFamily="monospace"
-                        android:textStyle="bold"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=" °C"
-                        android:textColor="#666666"
-                        android:textSize="14sp"
-                        android:fontFamily="monospace"
-                        android:gravity="bottom"/>
-                </LinearLayout>
-
-                <!-- Humidity row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="HUMID"
-                        android:textColor="#666666"
-                        android:textSize="12sp"
-                        android:fontFamily="monospace"
-                        android:layout_weight="1"/>
-                    <TextView
-                        android:id="@+id/tvHumid"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--"
-                        android:textColor="#E8E8E8"
-                        android:textSize="20sp"
-                        android:fontFamily="monospace"
-                        android:textStyle="bold"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=" %"
-                        android:textColor="#666666"
-                        android:textSize="14sp"
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="TEMP" android:textColor="#666666" android:textSize="12sp"
+                        android:fontFamily="monospace" android:layout_weight="1"/>
+                    <TextView android:id="@+id/tvTemp" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="--"
+                        android:textColor="#E8E8E8" android:textSize="20sp"
+                        android:fontFamily="monospace" android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text=" °C" android:textColor="#666666" android:textSize="14sp"
                         android:fontFamily="monospace"/>
                 </LinearLayout>
 
-                <!-- Generic value row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="VALUE"
-                        android:textColor="#666666"
-                        android:textSize="12sp"
-                        android:fontFamily="monospace"
-                        android:layout_weight="1"/>
-                    <TextView
-                        android:id="@+id/tvValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--"
-                        android:textColor="#E8E8E8"
-                        android:textSize="20sp"
-                        android:fontFamily="monospace"
-                        android:textStyle="bold"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginBottom="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="POT" android:textColor="#666666" android:textSize="12sp"
+                        android:fontFamily="monospace" android:layout_weight="1"/>
+                    <TextView android:id="@+id/tvPot" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="--"
+                        android:textColor="#E8E8E8" android:textSize="20sp"
+                        android:fontFamily="monospace" android:textStyle="bold"/>
                 </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="VALUE" android:textColor="#666666" android:textSize="12sp"
+                        android:fontFamily="monospace" android:layout_weight="1"/>
+                    <TextView android:id="@+id/tvValue" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="--"
+                        android:textColor="#E8E8E8" android:textSize="16sp"
+                        android:fontFamily="monospace" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- Hidden but kept for compatibility -->
+                <TextView android:id="@+id/tvHumid" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:visibility="gone"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Request sensors row -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="REQUEST"
-            android:textColor="#FF6B00"
-            android:textSize="11sp"
-            android:fontFamily="monospace"
-            android:letterSpacing="0.15"
-            android:layout_marginBottom="8dp" />
+        <!-- REQUEST -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="REQUEST" android:textColor="#FF6B00" android:textSize="11sp"
+            android:fontFamily="monospace" android:layout_marginBottom="8dp"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
-
-            <Button
-                android:id="@+id/bReqTemp"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="TEMP"
-                android:fontFamily="monospace"
-                android:backgroundTint="#1A2A1A"
-                android:textColor="#4CAF50"
-                android:strokeColor="#4CAF50" />
-
-            <Button
-                android:id="@+id/bReqHumid"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="UPTIME"
-                android:fontFamily="monospace"
-                android:backgroundTint="#1A2A1A"
-                android:textColor="#4CAF50" />
-
-            <Button
-                android:id="@+id/bReqAll"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="MEM"
-                android:fontFamily="monospace"
-                android:backgroundTint="#1A2A1A"
-                android:textColor="#4CAF50" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginBottom="16dp">
+            <Button android:id="@+id/bReqTemp" android:layout_width="0dp"
+                android:layout_height="wrap_content" android:layout_weight="1"
+                android:layout_marginEnd="8dp" android:text="TEMP" android:fontFamily="monospace"
+                android:backgroundTint="#1A2A1A" android:textColor="#4CAF50"/>
+            <Button android:id="@+id/bReqHumid" android:layout_width="0dp"
+                android:layout_height="wrap_content" android:layout_weight="1"
+                android:layout_marginEnd="8dp" android:text="UPTIME" android:fontFamily="monospace"
+                android:backgroundTint="#1A2A1A" android:textColor="#4CAF50"/>
+            <Button android:id="@+id/bReqAll" android:layout_width="0dp"
+                android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="ALL" android:fontFamily="monospace"
+                android:backgroundTint="#1A2A1A" android:textColor="#4CAF50"/>
         </LinearLayout>
 
-        <!-- LED Control -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="LED CONTROL"
-            android:textColor="#FF6B00"
-            android:textSize="11sp"
-            android:fontFamily="monospace"
-            android:letterSpacing="0.15"
-            android:layout_marginBottom="8dp" />
+        <!-- LED CONTROL -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="LED CONTROL" android:textColor="#FF6B00" android:textSize="11sp"
+            android:fontFamily="monospace" android:layout_marginBottom="8dp"/>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#1A1A1A"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="0dp">
+        <androidx.cardview.widget.CardView android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1A1A" app:cardCornerRadius="4dp" app:cardElevation="0dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:padding="16dp" android:gravity="center_vertical">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:text="LED 1" android:textColor="#AAAAAA"
+                    android:textSize="13sp" android:fontFamily="monospace"/>
+                <Button android:id="@+id/bLed1On" android:layout_width="wrap_content"
+                    android:layout_height="32dp" android:layout_marginEnd="8dp"
+                    android:text="ON" android:textSize="11sp" android:fontFamily="monospace"
+                    android:backgroundTint="#1A3A1A" android:textColor="#4CAF50"/>
+                <Button android:id="@+id/bLed1Off" android:layout_width="wrap_content"
+                    android:layout_height="32dp" android:layout_marginEnd="8dp"
+                    android:text="OFF" android:textSize="11sp" android:fontFamily="monospace"
+                    android:backgroundTint="#3A1A1A" android:textColor="#F44336"/>
+                <Button android:id="@+id/bLed1Blink" android:layout_width="wrap_content"
+                    android:layout_height="32dp" android:text="BLINK" android:textSize="11sp"
+                    android:fontFamily="monospace" android:backgroundTint="#2A2A00"
+                    android:textColor="#FFD600"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+        <!-- RGB LED -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="RGB LED" android:textColor="#FF6B00" android:textSize="11sp"
+            android:fontFamily="monospace" android:layout_marginBottom="8dp"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="12dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="LED 1"
-                        android:textColor="#AAAAAA"
-                        android:textSize="13sp"
-                        android:fontFamily="monospace"/>
-                    <Button
-                        android:id="@+id/bLed1On"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="ON"
-                        android:textSize="11sp"
-                        android:fontFamily="monospace"
-                        android:backgroundTint="#1A3A1A"
-                        android:textColor="#4CAF50" />
-                    <Button
-                        android:id="@+id/bLed1Off"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:text="OFF"
-                        android:textSize="11sp"
-                        android:fontFamily="monospace"
-                        android:backgroundTint="#3A1A1A"
-                        android:textColor="#F44336" />
+        <androidx.cardview.widget.CardView android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1A1A" app:cardCornerRadius="4dp" app:cardElevation="0dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="16dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+                    <View android:id="@+id/viewRgbPreview" android:layout_width="40dp"
+                        android:layout_height="40dp" android:background="#000000"
+                        android:layout_marginEnd="12dp"/>
+                    <TextView android:id="@+id/tvRgbValue" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="R:0 G:0 B:0"
+                        android:textColor="#666666" android:textSize="12sp" android:fontFamily="monospace"/>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="LED 2"
-                        android:textColor="#AAAAAA"
-                        android:textSize="13sp"
-                        android:fontFamily="monospace"/>
-                    <Button
-                        android:id="@+id/bLed2On"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="ON"
-                        android:textSize="11sp"
-                        android:fontFamily="monospace"
-                        android:backgroundTint="#1A3A1A"
-                        android:textColor="#4CAF50" />
-                    <Button
-                        android:id="@+id/bLed2Off"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:text="OFF"
-                        android:textSize="11sp"
-                        android:fontFamily="monospace"
-                        android:backgroundTint="#3A1A1A"
-                        android:textColor="#F44336" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+                    <TextView android:layout_width="20dp" android:layout_height="wrap_content"
+                        android:text="R" android:textColor="#F44336" android:fontFamily="monospace"
+                        android:textSize="12sp"/>
+                    <SeekBar android:id="@+id/seekR" android:layout_width="0dp"
+                        android:layout_height="wrap_content" android:layout_weight="1"
+                        android:max="255" android:progressTint="#F44336" android:thumbTint="#F44336"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+                    <TextView android:layout_width="20dp" android:layout_height="wrap_content"
+                        android:text="G" android:textColor="#4CAF50" android:fontFamily="monospace"
+                        android:textSize="12sp"/>
+                    <SeekBar android:id="@+id/seekG" android:layout_width="0dp"
+                        android:layout_height="wrap_content" android:layout_weight="1"
+                        android:max="255" android:progressTint="#4CAF50" android:thumbTint="#4CAF50"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="20dp" android:layout_height="wrap_content"
+                        android:text="B" android:textColor="#2196F3" android:fontFamily="monospace"
+                        android:textSize="12sp"/>
+                    <SeekBar android:id="@+id/seekB" android:layout_width="0dp"
+                        android:layout_height="wrap_content" android:layout_weight="1"
+                        android:max="255" android:progressTint="#2196F3" android:thumbTint="#2196F3"/>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- PWM Slider -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="PWM BRIGHTNESS"
-            android:textColor="#FF6B00"
-            android:textSize="11sp"
-            android:fontFamily="monospace"
-            android:letterSpacing="0.15"
-            android:layout_marginBottom="8dp" />
+        <!-- SERVO -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="SERVO" android:textColor="#FF6B00" android:textSize="11sp"
+            android:fontFamily="monospace" android:layout_marginBottom="8dp"/>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#1A1A1A"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    <SeekBar
-                        android:id="@+id/seekPwm"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:max="255"
-                        android:progress="0"
-                        android:progressTint="#FF6B00"
-                        android:thumbTint="#FF6B00"
-                        android:layout_marginEnd="12dp" />
-                    <TextView
-                        android:id="@+id/tvPwmValue"
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="#E8E8E8"
-                        android:textSize="14sp"
-                        android:fontFamily="monospace"
-                        android:gravity="end" />
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/bSendPwm"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="SEND PWM"
-                    android:fontFamily="monospace"
-                    android:backgroundTint="#2A1A00"
-                    android:textColor="#FF6B00" />
+        <androidx.cardview.widget.CardView android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#1A1A1A" app:cardCornerRadius="4dp" app:cardElevation="0dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:padding="16dp" android:gravity="center_vertical">
+                <SeekBar android:id="@+id/seekServo" android:layout_width="0dp"
+                    android:layout_height="wrap_content" android:layout_weight="1"
+                    android:max="180" android:progress="90"
+                    android:progressTint="#FF6B00" android:thumbTint="#FF6B00"
+                    android:layout_marginEnd="12dp"/>
+                <TextView android:id="@+id/tvServoValue" android:layout_width="44dp"
+                    android:layout_height="wrap_content" android:text="90°"
+                    android:textColor="#E8E8E8" android:textSize="14sp"
+                    android:fontFamily="monospace" android:gravity="end"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Last status -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="LAST RESPONSE"
-            android:textColor="#FF6B00"
-            android:textSize="11sp"
-            android:fontFamily="monospace"
-            android:letterSpacing="0.15"
-            android:layout_marginBottom="8dp" />
+        <!-- BUZZER -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="BUZZER" android:textColor="#FF6B00" android:textSize="11sp"
+            android:fontFamily="monospace" android:layout_marginBottom="8dp"/>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginBottom="16dp">
+            <Button android:id="@+id/bBuzz" android:layout_width="0dp"
+                android:layout_height="wrap_content" android:layout_weight="1"
+                android:layout_marginEnd="8dp" android:text="BEEP"
+                android:fontFamily="monospace" android:backgroundTint="#1A1A2A"
+                android:textColor="#2196F3"/>
+            <Button android:id="@+id/bBuzzAlarm" android:layout_width="0dp"
+                android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="ALARM" android:fontFamily="monospace"
+                android:backgroundTint="#2A1A1A" android:textColor="#F44336"/>
+        </LinearLayout>
+
+        <!-- LAST RESPONSE -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="LAST RESPONSE" android:textColor="#FF6B00" android:textSize="11sp"
+            android:fontFamily="monospace" android:layout_marginBottom="8dp"/>
+
+        <androidx.cardview.widget.CardView android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="#1A1A1A"
-            app:cardCornerRadius="4dp"
-            app:cardElevation="0dp">
-            <TextView
-                android:id="@+id/tvLastResponse"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:text="—"
-                android:textColor="#666666"
-                android:textSize="13sp"
-                android:fontFamily="monospace" />
+            app:cardBackgroundColor="#1A1A1A" app:cardCornerRadius="4dp" app:cardElevation="0dp">
+            <TextView android:id="@+id/tvLastResponse" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:padding="16dp" android:text="—"
+                android:textColor="#666666" android:textSize="13sp" android:fontFamily="monospace"/>
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>

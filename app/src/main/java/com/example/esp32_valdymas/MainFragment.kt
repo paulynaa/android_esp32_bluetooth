@@ -147,6 +147,17 @@ class MainFragment : Fragment(), BluetoothController.Listener {
                 dashboardFragment.updateSensorData("VALUE", value)
                 terminalFragment.appendLog(trimmed, TerminalFragment.LogType.OK)
             }
+            // NEW: potentiometer live value
+            trimmed.startsWith("POT:") -> {
+                val value = trimmed.removePrefix("POT:")
+                dashboardFragment.updateSensorData("POT", value)
+                // Don't log every pot update to terminal — it would spam it
+            }
+            // NEW: physical button pressed on ESP32
+            trimmed == "BTN:PRESSED" -> {
+                dashboardFragment.showResponse("Button pressed!", false)
+                terminalFragment.appendLog("BTN:PRESSED — physical button triggered", TerminalFragment.LogType.OK)
+            }
             trimmed == "OK" -> {
                 dashboardFragment.showResponse("OK", false)
                 terminalFragment.appendLog("OK", TerminalFragment.LogType.OK)
